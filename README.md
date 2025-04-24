@@ -11,7 +11,7 @@ Download the Dataset here: https://github.com/SherlonAlmeida/Stereo-Cameras-Simu
 *   FocalLength (mm): 35mm
 *   FocalLength (px): 4729.73px
 *   Images LR (H,W): 2000x3000px
-*   Physical Camera (H, W): 22.2x14.8mm
+*   Physical Camera (H, W): 14.8x22.2mm
 *   Pixel Size (mm) = 0.0074mm
 
 ## Video Demo (Youtube)
