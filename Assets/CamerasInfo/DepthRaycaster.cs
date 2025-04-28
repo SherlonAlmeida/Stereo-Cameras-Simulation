@@ -3,6 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class DepthRaycaster : MonoBehaviour
 {
+    public enum DepthMode { Perspective, Orthogonal }
+    public DepthMode depthMode = DepthMode.Perspective;
+
     public Camera cam;
     public Material previewMaterial;
 
@@ -33,11 +36,24 @@ public class DepthRaycaster : MonoBehaviour
             {
                 float u = (float)x / (resolutionWidth - 1);
                 float v = (float)y / (resolutionHeight - 1);
+
                 Ray ray = cam.ViewportPointToRay(new Vector3(u, v, 0));
 
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
-                    float depth = hit.distance;
+                    float depth;
+
+                    if (depthMode == DepthMode.Perspective)
+                    {
+                        // distância real medida ao longo do raio
+                        depth = hit.distance;
+                    }
+                    else // Orthogonal
+                    {
+                        // distância apenas no eixo Z da câmera (plano de projeção)
+                        Vector3 localHitPoint = cam.transform.InverseTransformPoint(hit.point);
+                        depth = localHitPoint.z;
+                    }
 
                     // depth real em metros
                     depthMapReal.SetPixel(x, y, new Color(depth, 0, 0));
