@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        // Movement
+        // Movimento
         float moveX = Input.GetAxis("Horizontal"); // A, D
         float moveZ = Input.GetAxis("Vertical");   // W, S
         float moveY = 0f;
@@ -20,20 +20,18 @@ public class CameraController : MonoBehaviour
         Vector3 move = transform.right * moveX + transform.forward * moveZ + transform.up * moveY;
         transform.position += move * moveSpeed * Time.deltaTime;
 
-        // Mouse Drag Rotation (like Scene view in Unity)
-        if (Input.GetMouseButtonDown(0)) // Left-click to start rotation
+        // Rotação horizontal via mouse
+        if (Input.GetMouseButtonDown(0))
         {
             lastMousePosition = Input.mousePosition;
         }
 
-        if (Input.GetMouseButton(0)) // Left-click to rotate
+        if (Input.GetMouseButton(0))
         {
             Vector3 delta = Input.mousePosition - lastMousePosition;
             float angleY = delta.x * rotationSpeed * Time.deltaTime;
-            float angleX = -delta.y * rotationSpeed * Time.deltaTime;
 
-            transform.Rotate(Vector3.up, angleY, Space.World);
-            transform.Rotate(transform.right, angleX, Space.World);
+            transform.Rotate(Vector3.up, angleY, Space.World); // somente horizontal
 
             lastMousePosition = Input.mousePosition;
         }

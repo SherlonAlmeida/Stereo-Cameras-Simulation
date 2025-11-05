@@ -35,24 +35,28 @@ public class SaveCamerasInfo : MonoBehaviour
 
     void ExportPose(Camera cam, int index, string path)
     {
-        // Matriz mundo -> c�mera
+        // camera -> world (em Unity)
         Matrix4x4 T_wc = Matrix4x4.TRS(cam.transform.position, cam.transform.rotation, Vector3.one);
-        Matrix4x4 T_cw = T_wc.inverse;
 
-        // Corrigir sistema de coordenadas (Unity -> Open3D)
-        Matrix4x4 flipZ = Matrix4x4.Scale(new Vector3(1, 1, -1));
-        T_cw = flipZ * T_cw * flipZ;
+        // Converter para sistema right-handed (OpenCV/Open3D)
+        Matrix4x4 flipYZ = Matrix4x4.identity;
+        flipYZ.m11 = -1f;
+        flipYZ.m22 = -1f;
 
-        // Formatar como no dataset Fountain
-        string header = $"{index}\t0\t1\n";
+        // Converter coordenadas Unity -> OpenCV
+        Matrix4x4 T_converted = flipYZ * T_wc * flipYZ;
+
+        // Formatar saída
+        string header = $"{index}\t{index}\t{index + 1}\n";
         string mat =
-            $"   {T_cw.m00,10:F6} {T_cw.m01,10:F6} {T_cw.m02,10:F6} {T_cw.m03,10:F6}\n" +
-            $"   {T_cw.m10,10:F6} {T_cw.m11,10:F6} {T_cw.m12,10:F6} {T_cw.m13,10:F6}\n" +
-            $"   {T_cw.m20,10:F6} {T_cw.m21,10:F6} {T_cw.m22,10:F6} {T_cw.m23,10:F6}\n" +
+            $"   {T_converted.m00,10:F6} {T_converted.m01,10:F6} {T_converted.m02,10:F6} {T_converted.m03,10:F6}\n" +
+            $"   {T_converted.m10,10:F6} {T_converted.m11,10:F6} {T_converted.m12,10:F6} {T_converted.m13,10:F6}\n" +
+            $"   {T_converted.m20,10:F6} {T_converted.m21,10:F6} {T_converted.m22,10:F6} {T_converted.m23,10:F6}\n" +
             $"   {0,10} {0,10} {0,10} {1,10}\n";
 
         File.AppendAllText(path, header + mat);
-        Debug.Log($"Extrinsics {index} saved at {path}.");
+        Debug.Log($"[SaveCamerasInfo] Extrinsics {index} saved to {path}");
+        Debug.Log($"[SaveCamerasInfo] Extrinsics {index} saved to {path}");
     }
 
     void ExportIntrinsics(Camera cam, string path)
@@ -60,12 +64,13 @@ public class SaveCamerasInfo : MonoBehaviour
         int width = cam.pixelWidth;
         int height = cam.pixelHeight;
 
+        // Cálculo de intrínsecos baseado no FOV e aspect ratio da câmera
         float fy = (height / 2f) / Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
         float fx = fy * cam.aspect;
         float cx = width / 2f;
         float cy = height / 2f;
 
-        // JSON manual para manter formato compat�vel com Open3D
+        // JSON compatível com o formato Open3D
         string json =
 $@"{{
     ""width"": {width},
@@ -78,6 +83,6 @@ $@"{{
 }}";
 
         File.WriteAllText(path, json);
-        Debug.Log($"Intrinsics saved at {path}.");
+        Debug.Log($"[SaveCamerasInfo] Intrinsics saved to {path}");
     }
 }
