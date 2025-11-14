@@ -38,20 +38,12 @@ public class SaveCamerasInfo : MonoBehaviour
         // camera -> world (em Unity)
         Matrix4x4 T_wc = Matrix4x4.TRS(cam.transform.position, cam.transform.rotation, Vector3.one);
 
-        // Converter para sistema right-handed (OpenCV/Open3D)
-        Matrix4x4 flipYZ = Matrix4x4.identity;
-        flipYZ.m11 = -1f;
-        flipYZ.m22 = -1f;
-
-        // Converter coordenadas Unity -> OpenCV
-        Matrix4x4 T_converted = flipYZ * T_wc * flipYZ;
-
         // Formatar saída
         string header = $"{index}\t{index}\t{index + 1}\n";
         string mat =
-            $"   {T_converted.m00,10:F6} {T_converted.m01,10:F6} {T_converted.m02,10:F6} {T_converted.m03,10:F6}\n" +
-            $"   {T_converted.m10,10:F6} {T_converted.m11,10:F6} {T_converted.m12,10:F6} {T_converted.m13,10:F6}\n" +
-            $"   {T_converted.m20,10:F6} {T_converted.m21,10:F6} {T_converted.m22,10:F6} {T_converted.m23,10:F6}\n" +
+            $"   {T_wc.m00,10:F6} {T_wc.m01,10:F6} {T_wc.m02,10:F6} {T_wc.m03,10:F6}\n" +
+            $"   {T_wc.m10,10:F6} {T_wc.m11,10:F6} {T_wc.m12,10:F6} {T_wc.m13,10:F6}\n" +
+            $"   {T_wc.m20,10:F6} {T_wc.m21,10:F6} {T_wc.m22,10:F6} {T_wc.m23,10:F6}\n" +
             $"   {0,10} {0,10} {0,10} {1,10}\n";
 
         File.AppendAllText(path, header + mat);
